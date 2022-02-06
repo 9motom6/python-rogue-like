@@ -31,7 +31,7 @@ def clear_all(console: libtcod.Console, entities: list[Entity]):
 
 def draw_entity(console: libtcod.Console, entity: Entity) -> None:
     libtcod.console_set_default_foreground(console, entity.color)
-    console.print(entity.x, entity.y, entity.char)
+    console.print(entity.x, entity.y, entity.char, fg = entity.color)
 
 def clear_entity(console: libtcod.Console, entity: Entity):
     console.print(entity.x, entity.y, ' ')

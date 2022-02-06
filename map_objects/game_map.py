@@ -1,24 +1,25 @@
+import numpy
+from tcod import Console
 
-from map_objects.tile import Tile
-
+import map_objects.tile_types as tile_types
 
 class GameMap:
     def __init__(self, width: int, height: int):
         self.width: int = width
         self.height: int = height
-        self.tiles: list[list[Tile]] = self.initialize_tiles()
+        self.tiles = self.initialize_tiles(width, height)
 
-    def is_blocked(self, x: int , y: int) -> bool:
-        return self.tiles[x][y].blocked
+
+    def is_in_bounds(self, x: int, y: int) -> bool:
+        """Return True if x and y are inside of the bounds of this map."""
+        return 0 <= x < self.width and 0 <= y < self.height
+
+    def render(self, console: Console) -> None:
+        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
         
-    def initialize_tiles(self) -> list[list[Tile]]:
-        tiles: list[list[Tile]] = [[Tile(False) for y in range(self.height)] for x in range(self.width)]
+    def initialize_tiles(self, width: int, height: int):
+        tiles = numpy.full((width, height), fill_value=tile_types.floor, order="F")
 
-        tiles[30][22].blocked = True
-        tiles[30][22].block_sight = True
-        tiles[31][22].blocked = True
-        tiles[31][22].block_sight = True
-        tiles[32][22].blocked = True
-        tiles[32][22].block_sight = True
+        tiles[30:33, 22] = tile_types.wall
 
         return tiles
