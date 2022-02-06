@@ -1,5 +1,6 @@
 import tcod
 from entity import Entity
+from map_objects.coords import Coords
 
 class Action: 
     def perform(self, engine, entity: Entity, context) -> None:
@@ -23,12 +24,10 @@ class MovementAction(Action):
         self.dy = dy
 
     def perform(self, engine, entity: Entity, context) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-
-        if not engine.game_map.is_in_bounds(dest_x, dest_y):
+        dest = Coords(x= entity.location.x + self.dx, y=entity.location.y + self.dy)
+        if not engine.game_map.is_in_bounds(Coords(x= entity.location.x + self.dx, y=entity.location.y + self.dy)):
             return  # Destination is out of bounds.
-        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not engine.game_map.tiles["walkable"][dest.x, dest.y]:
             return  # Destination is blocked by a tile.
 
         entity.move(self.dx, self.dy)
