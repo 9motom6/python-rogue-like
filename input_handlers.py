@@ -1,7 +1,7 @@
 from typing import Optional
 import tcod
 
-from actions import Action, EscapeAction, FullscreenAction, MovementAction
+from actions import Action, EscapeAction, FullscreenAction, BumpAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
@@ -11,13 +11,13 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
         # Movement keys         
         if key == tcod.event.K_UP:
-            return MovementAction(dx=0, dy=-1)
+            return BumpAction(dx=0, dy=-1)
         if key == tcod.event.K_DOWN:
-            return MovementAction(dx=0, dy=1)
+            return BumpAction(dx=0, dy=1)
         if key == tcod.event.K_LEFT:
-            return MovementAction(dx=-1, dy=0)
+            return BumpAction(dx=-1, dy=0)
         if key == tcod.event.K_RIGHT:
-            return MovementAction(dx=1, dy=0)
+            return BumpAction(dx=1, dy=0)
 
         # Alt+Enter: toggle full screen
         if key == tcod.event.K_RETURN and mod.ALT:           

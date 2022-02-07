@@ -1,17 +1,17 @@
-from typing import Set, Iterable, Any
+from typing import Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Entity
 from input_handlers import EventHandler
+
+from map_objects.entity import Entity
 from map_objects.game_map import GameMap
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler, player: Entity, game_map: GameMap):
-        self.entities = entities
+    def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
         self.event_handler = event_handler
         self.player = player
         self.game_map = game_map
@@ -25,16 +25,12 @@ class Engine:
                 continue
             action.perform(self, self.player, context)
 
+            self.handle_enemy_turns()
+            
             self.update_fov()
 
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
-
-        for entity in self.entities:
-            # Only print entities that are in the FOV
-            if self.game_map.visible[entity.location.x, entity.location.y]:
-                console.print(entity.location.x, entity.location.y, entity.char, fg=entity.color)
-
 
         context.present(console)
 
@@ -49,3 +45,7 @@ class Engine:
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
+
+    def handle_enemy_turns(self) -> None:
+        for entity in self.game_map.entities - {self.player}:
+            print(f'The {entity.name} wonders when it will get to take a real turn.')

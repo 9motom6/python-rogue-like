@@ -1,6 +1,6 @@
 import tcod as libtcod
 
-from entity import Entity
+from map_objects.entity import Entity
 from map_objects.game_map import GameMap
 
 def render_all(console: libtcod.Console, 

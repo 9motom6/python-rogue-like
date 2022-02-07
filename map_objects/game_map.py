@@ -6,9 +6,10 @@ from map_objects.coords import Coords
 import map_objects.tile_types as tile_types
 
 class GameMap:
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int, entities = ()):
         self.width: int = width
         self.height: int = height
+        self.entities = set(entities)
         self.tiles = self.initialize_tiles(width, height)
 
         self.visible = numpy.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
@@ -31,9 +32,22 @@ class GameMap:
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD
         )
+
+        for entity in self.entities:
+            # Only print entities that are in the FOV
+            if self.visible[entity.location.x, entity.location.y]:
+                console.print(x=entity.location.x, y=entity.location.y, string=entity.char, fg=entity.color)
         
     def initialize_tiles(self, width: int, height: int):
         return numpy.full((width, height), fill_value=tile_types.wall, order="F")
 
     def set_tiles_rect(self, rectangle: Tuple[slice, slice], tile_type):
         self.tiles[rectangle] = tile_type
+
+    def get_blocking_entity_at_location(self, location: Coords):
+        for entity in self.entities:
+            if entity.blocks_movement and entity.location == location:
+                return entity
+
+        return None
+
