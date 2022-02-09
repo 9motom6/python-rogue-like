@@ -1,5 +1,5 @@
 import random
-from typing import Iterator, List, Tuple
+from typing import TYPE_CHECKING, Iterator, List, Tuple
 from typing_extensions import Self
 
 import tcod
@@ -10,6 +10,9 @@ from map_objects.coords import Coords
 from map_objects.game_map import GameMap
 import map_objects.tile_types as tile_types
 
+if TYPE_CHECKING:
+    from engine import Engine
+    
 class RectangularRoom:
     def __init__(self, top_left: Coords, width: int, height: int) -> None:
         self.top_left = top_left
@@ -44,10 +47,11 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     max_monsters_per_room: int,
-    player: Entity,
+    engine,
 ) -> GameMap:
     """Generate a new dungeon map."""
-    dungeon = GameMap(map_width, map_height, entities=[player])
+    player = engine.player
+    dungeon = GameMap(engine, map_width, map_height, entities=[player])
 
     rooms: List[RectangularRoom] = []
 
@@ -70,7 +74,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # The first room, where the player starts.
-            player.location = new_room.center
+            player.place(new_room.center, dungeon)
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):

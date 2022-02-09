@@ -1,4 +1,4 @@
-from typing import Iterable, Any
+from typing import TYPE_CHECKING, Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
@@ -6,28 +6,13 @@ from tcod.map import compute_fov
 
 from input_handlers import EventHandler
 
-from map_objects.entity import Entity
-from map_objects.game_map import GameMap
-
-
 class Engine:
-    def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
-        self.event_handler = event_handler
+
+    game_map = None
+
+    def __init__(self, player):
+        self.event_handler: EventHandler = EventHandler(self)
         self.player = player
-        self.game_map = game_map
-        self.update_fov()
-
-    def handle_events(self, events: Iterable[Any], context) -> None:
-        for event in events:
-            action = self.event_handler.dispatch(event)
-
-            if action is None:
-                continue
-            action.perform(self, self.player, context)
-
-            self.handle_enemy_turns()
-            
-            self.update_fov()
 
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)

@@ -1,31 +1,46 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 import tcod
 
-from actions import Action, EscapeAction, FullscreenAction, BumpAction
-
+from actions import Action, EscapeAction, BumpAction
 
 class EventHandler(tcod.event.EventDispatch[Action]):
+    def __init__(self, engine):
+        self.engine = engine
+
+    def handle_events(self) -> None:
+        for event in tcod.event.wait():
+            action = self.dispatch(event)
+
+            if action is None:
+                continue
+
+            action.perform()
+
+            self.engine.handle_enemy_turns()
+            self.engine.update_fov()  # Update the FOV before the players next action.
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         key = event.sym
         mod = event.mod
 
+        player = self.engine.player
         # Movement keys         
         if key == tcod.event.K_UP:
-            return BumpAction(dx=0, dy=-1)
+            return BumpAction(player, dx=0, dy=-1)
         if key == tcod.event.K_DOWN:
-            return BumpAction(dx=0, dy=1)
+            return BumpAction(player, dx=0, dy=1)
         if key == tcod.event.K_LEFT:
-            return BumpAction(dx=-1, dy=0)
+            return BumpAction(player, dx=-1, dy=0)
         if key == tcod.event.K_RIGHT:
-            return BumpAction(dx=1, dy=0)
+            return BumpAction(player, dx=1, dy=0)
 
         # Alt+Enter: toggle full screen
         if key == tcod.event.K_RETURN and mod.ALT:           
-            return FullscreenAction()
+            pass
+            # return FullscreenAction()
 
         # Exit the game
-        if key == tcod.event.K_ESCAPE:
-           
+        if key == tcod.event.K_ESCAPE:           
             return EscapeAction()
 
         # No valid key was pressed

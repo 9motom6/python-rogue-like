@@ -1,12 +1,15 @@
-from typing import Tuple
+from typing import TYPE_CHECKING, Iterable, Optional, Tuple
 import numpy
 from tcod import Console
 from map_objects.coords import Coords
 
 import map_objects.tile_types as tile_types
 
+
+    
 class GameMap:
-    def __init__(self, width: int, height: int, entities = ()):
+    def __init__(self, engine, width: int, height: int, entities = ()):
+        self.engine = engine
         self.width: int = width
         self.height: int = height
         self.entities = set(entities)
@@ -46,7 +49,7 @@ class GameMap:
 
     def get_blocking_entity_at_location(self, location: Coords):
         for entity in self.entities:
-            if entity.blocks_movement and entity.location == location:
+            if (entity.blocks_movement and entity.location == location):
                 return entity
 
         return None
