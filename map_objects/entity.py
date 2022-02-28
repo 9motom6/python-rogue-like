@@ -5,6 +5,7 @@ from components.fighter import Fighter
 
 from map_objects.coords import Coords
 from map_objects.game_map import GameMap
+from map_objects.render_order import RenderOrder
 
 T = TypeVar("T", bound="Entity")
 
@@ -24,12 +25,14 @@ class Entity:
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
+        render_order: RenderOrder = RenderOrder.CORPSE,
     ):
         self.location = location
         self.char = char
         self.color = color
         self.name = name
         self.blocks_movement = blocks_movement
+        self.render_order = render_order
         if gamemap:
             # If gamemap isn't provided now then it will be set later.
             self.gamemap = gamemap
@@ -61,19 +64,26 @@ class Entity:
 
 class Actor(Entity):
     def __init__(self,
-                 *, 
-                 location: Coords = Coords(0, 0), 
-                 char: str = "?", 
-                 color: Tuple[int, int, int] = (255, 255, 255), 
+                 *,
+                 location: Coords = Coords(0, 0),
+                 char: str = "?",
+                 color: Tuple[int, int, int] = (255, 255, 255),
                  name: str = "<Unnamed>",
                  ai_cls: Type[BaseAI],
                  fighter: Fighter):
-        super().__init__(location=location, char=char, color=color, name=name, blocks_movement=True)
+        super().__init__(
+            location=location,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=True,
+            render_order=RenderOrder.ACTOR,)
 
         self.ai: Optional[BaseAI] = ai_cls(self)
 
         self.fighter = fighter
         self.fighter.entity = self
+
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
