@@ -3,10 +3,7 @@ import copy
 import tcod
 
 from engine import Engine
-from input_handlers import EventHandler
 from map_objects import entity_factories
-from map_objects.entity import Entity
-from map_objects.game_map import GameMap
 from map_objects.procedual_generator import generate_dungeon
 
 FONT_FILE = "arial10x10.png"

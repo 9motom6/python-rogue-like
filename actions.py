@@ -1,14 +1,11 @@
-from typing import Optional, Tuple, TYPE_CHECKING
 
-import tcod
-from map_objects.entity import Entity
 from map_objects.coords import Coords
 
 
 class Action: 
 
-    def __init__(self, entity: Entity) -> None:
-        super().__init__()
+    def __init__(self, entity) -> None:
+        # super().__init__()
         self.entity = entity
 
     @property
@@ -29,7 +26,7 @@ class EscapeAction(Action):
         raise SystemExit()
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity, dx: int, dy: int):
         super().__init__(entity)
         self.dx = dx
         self.dy = dy
@@ -40,7 +37,7 @@ class ActionWithDirection(Action):
         return Coords(self.entity.location.x + self.dx, self.entity.location.y + self.dy)
 
     @property
-    def blocking_entity(self) -> Optional[Entity]:
+    def blocking_entity(self):
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(self.dest_xy)
 
@@ -72,6 +69,10 @@ class MovementAction(ActionWithDirection):
             return  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)
+
+class WaitAction(Action):
+    def perform(self) -> None:
+        pass
 
 # class FullscreenAction(Action):
 #     def perform(self) -> None:      

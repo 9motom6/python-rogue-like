@@ -13,3 +13,9 @@ class Coords:
     @classmethod
     def from_tuple(cls, coords: Tuple[int, int]) -> None:
         return cls(x = coords[0], y = coords[1])
+
+    def chebyshev_distance(self, target):
+        dx = target.x - self.x
+        dy = target.y - self.y
+
+        return max(abs(dx), abs(dy))

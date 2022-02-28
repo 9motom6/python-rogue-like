@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Tuple
+from typing import TYPE_CHECKING, Iterable, Iterator, Optional, Tuple
 import numpy
 from tcod import Console
 from map_objects.coords import Coords
@@ -17,6 +17,15 @@ class GameMap:
 
         self.visible = numpy.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = numpy.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
+        
+    @property
+    def actors(self):
+        """Iterate over this maps living actors."""
+        yield from (
+            entity
+            for entity in self.entities
+            if type(entity).__name__ == "Actor"
+        )
 
     def is_in_bounds(self, coords: Coords) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
@@ -54,3 +63,9 @@ class GameMap:
 
         return None
 
+    def get_actor_at_location(self, location: Coords):
+        for actor in self.actors:
+            if actor.location == location:
+                return actor
+
+        return None

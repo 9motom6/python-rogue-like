@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING, Optional
 import tcod
 
-from actions import Action, EscapeAction, BumpAction
+from actions import EscapeAction, BumpAction
 
-class EventHandler(tcod.event.EventDispatch[Action]):
+class EventHandler(tcod.event.EventDispatch[any]):
     def __init__(self, engine):
         self.engine = engine
 
@@ -19,7 +18,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             self.engine.handle_enemy_turns()
             self.engine.update_fov()  # Update the FOV before the players next action.
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
         mod = event.mod
 
@@ -41,10 +40,10 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
         # Exit the game
         if key == tcod.event.K_ESCAPE:           
-            return EscapeAction()
+            return EscapeAction(player)
 
-        # No valid key was pressed
+        # No valid key was pressed 
         return None
 
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+    def ev_quit(self, event: tcod.event.Quit):
         raise SystemExit()

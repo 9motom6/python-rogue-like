@@ -1,24 +1,27 @@
 import copy
-from typing import Optional, Tuple, TypeVar
+from typing import Optional, Tuple, Type, TypeVar
+from components.ai import BaseAI
+from components.fighter import Fighter
 
 from map_objects.coords import Coords
 from map_objects.game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
 
+
 class Entity:
     """
     A generic object to represent players, enemies, items, etc.
     """
-    
+
     gamemap: GameMap
 
     def __init__(
-        self, 
+        self,
         gamemap: Optional[GameMap] = None,
-        location: Coords = Coords(0, 0), 
-        char: str = "?", 
-        color: Tuple[int, int, int] = (255, 255, 255),    
+        location: Coords = Coords(0, 0),
+        char: str = "?",
+        color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
     ):
@@ -39,8 +42,8 @@ class Entity:
         clone.gamemap = gamemap
         gamemap.entities.add(clone)
 
-        return clone   
-        
+        return clone
+
     def move(self, dx: int, dy: int) -> None:
         self.location.x += dx
         self.location.y += dy
@@ -48,9 +51,30 @@ class Entity:
     def place(self, location: Coords,  gamemap: Optional[GameMap] = None) -> None:
         """Place this entity at a new location.  Handles moving across GameMaps."""
         self.location = location
-        
+
         if gamemap:
             if hasattr(self, "gamemap"):  # Possibly uninitialized.
                 self.gamemap.entities.remove(self)
             self.gamemap = gamemap
             gamemap.entities.add(self)
+
+
+class Actor(Entity):
+    def __init__(self,
+                 *, 
+                 location: Coords = Coords(0, 0), 
+                 char: str = "?", 
+                 color: Tuple[int, int, int] = (255, 255, 255), 
+                 name: str = "<Unnamed>",
+                 ai_cls: Type[BaseAI],
+                 fighter: Fighter):
+        super().__init__(location=location, char=char, color=color, name=name, blocks_movement=True)
+
+        self.ai: Optional[BaseAI] = ai_cls(self)
+
+        self.fighter = fighter
+        self.fighter.entity = self
+    @property
+    def is_alive(self) -> bool:
+        """Returns True as long as this actor can perform actions."""
+        return bool(self.ai)

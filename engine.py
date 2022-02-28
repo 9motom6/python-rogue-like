@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING, Iterable, Any
-
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
@@ -32,5 +30,6 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
     def handle_enemy_turns(self) -> None:
-        for entity in self.game_map.entities - {self.player}:
-            print(f'The {entity.name} wonders when it will get to take a real turn.')
+        for entity in set(self.game_map.actors) - {self.player}:
+            if entity.ai:
+                entity.ai.perform()
