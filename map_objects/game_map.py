@@ -27,6 +27,10 @@ class GameMap:
             if type(entity).__name__ == "Actor"
         )
 
+    @property
+    def gamemap(self):
+        return self
+
     def is_in_bounds(self, coords: Coords) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= coords.x < self.width and 0 <= coords.y < self.height

@@ -1,8 +1,12 @@
 class BaseComponent:
 
-    def __init__(self, entity):
-        self.entity = entity
+    def __init__(self, parent):
+        self.parent = parent
     
     @property
     def engine(self):
-        return self.entity.gamemap.engine
+        return self.gamemap.engine
+
+    @property
+    def gamemap(self):
+        return self.parent.gamemap
