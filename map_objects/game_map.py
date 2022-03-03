@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable, Iterator, Optional, Tuple
+from typing import Tuple
 import numpy
 from tcod import Console
 from map_objects.coords import Coords

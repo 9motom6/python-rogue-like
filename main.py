@@ -5,7 +5,7 @@ import tcod
 from engine import Engine
 from map_objects import entity_factories
 from map_objects.procedual_generator import generate_dungeon
-
+import color
 FONT_FILE = "arial10x10.png"
 
 def main() -> bool:
@@ -13,7 +13,7 @@ def main() -> bool:
     screen_height = 50
     
     map_width: int = 80
-    map_height: int = 45
+    map_height: int = 43
     
     room_max_size = 10
     room_min_size = 6
@@ -40,6 +40,9 @@ def main() -> bool:
     )
 
     engine.update_fov()
+    engine.message_log.add_message(
+        "Hello and welcome, adventurer, to yet another dungeon!", color.welcome_text
+    )
 
     with tcod.context.new_terminal(
         screen_width,
@@ -50,9 +53,11 @@ def main() -> bool:
     ) as context:
         root_console: tcod.Console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            engine.render(console=root_console, context=context)
-            
-            engine.event_handler.handle_events()
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
+
+            engine.event_handler.handle_events(context)
 
 if __name__ == "__main__":
     main()
