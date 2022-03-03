@@ -28,6 +28,14 @@ class GameMap:
         )
 
     @property
+    def items(self):
+        yield from (
+            entity 
+            for entity in self.entities 
+            if type(entity).__name__ == "Item"
+        )
+        
+    @property
     def gamemap(self):
         return self
 

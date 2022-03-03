@@ -1,7 +1,8 @@
 import copy
-from typing import Optional, Tuple, Type, TypeVar
+from typing import Optional, Tuple, Type, TypeVar, Union
 from components.ai import BaseAI
 from components.fighter import Fighter
+from components.inventory import Inventory
 
 from map_objects.coords import Coords
 from map_objects.game_map import GameMap
@@ -15,7 +16,7 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    parent: GameMap
+    parent: Union[GameMap, "Inventory"]
 
     def __init__(
         self,
@@ -75,7 +76,8 @@ class Actor(Entity):
                  color: Tuple[int, int, int] = (255, 255, 255),
                  name: str = "<Unnamed>",
                  ai_cls: Type[BaseAI],
-                 fighter: Fighter):
+                 fighter: Fighter,
+                 inventory):
         super().__init__(
             location=location,
             char=char,
@@ -89,7 +91,33 @@ class Actor(Entity):
         self.fighter = fighter
         self.fighter.parent = self
 
+        self.inventory = inventory
+        self.inventory.parent = self
+
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+
+class Item(Entity):
+    def __init__(
+        self,
+        *,
+        location: Coords = Coords(0, 0),
+        char: str = "?",
+        color: Tuple[int, int, int] = (255, 255, 255),
+        name: str = "<Unnamed>",
+        consumable,
+    ):
+        super().__init__(
+            location=location,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=False,
+            render_order=RenderOrder.ITEM,
+        )
+
+        self.consumable = consumable
+        self.consumable.parent = self

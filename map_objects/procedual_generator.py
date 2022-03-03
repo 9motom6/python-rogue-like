@@ -47,6 +47,7 @@ def generate_dungeon(
     map_width: int,
     map_height: int,
     max_monsters_per_room: int,
+    max_items_per_room: int,
     engine,
 ) -> GameMap:
     """Generate a new dungeon map."""
@@ -80,7 +81,7 @@ def generate_dungeon(
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_types.floor
 
-        place_entities(new_room, dungeon, max_monsters_per_room)
+        place_entities(new_room, dungeon, max_monsters_per_room, max_items_per_room)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
@@ -105,15 +106,25 @@ def tunnel_between(start: Coords, end: Coords) -> Iterator[Coords]:
 
 
 def place_entities(
-    room: RectangularRoom, dungeon: GameMap, maximum_monsters: int,
+    room: RectangularRoom, dungeon: GameMap, maximum_monsters: int, maximum_items: int
 ) -> None:
     number_of_monsters = random.randint(0, maximum_monsters)
+    number_of_items = random.randint(0, maximum_items)
 
     for _ in range(number_of_monsters):
-        monster_location = Coords(random.randint(room.top_left.x + 1, room.bottom_right.x - 1), random.randint(room.top_left.y + 1, room.bottom_right.y - 1))
+        monster_location = Coords(
+            random.randint(room.top_left.x + 1, room.bottom_right.x - 1),
+            random.randint(room.top_left.y + 1, room.bottom_right.y - 1))
 
         if not any(entity.location == monster_location for entity in dungeon.entities):
             if random.random() < 0.8:
                 entity_factories.orc.spawn(dungeon, monster_location)
             else:
                 entity_factories.troll.spawn(dungeon, monster_location)
+
+    for _ in range(number_of_items): #  TODO
+        item_location = Coords(random.randint(room.top_left.x + 1, room.bottom_right.x - 1), 
+        random.randint(room.top_left.y +_ + 1, room.bottom_right.y - 1))
+
+        if not any(entity.location == item_location for entity in dungeon.entities):
+            entity_factories.health_potion.spawn(dungeon, item_location)

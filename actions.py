@@ -1,6 +1,8 @@
 
+from typing import Optional, Tuple
 from map_objects.coords import Coords
 import color
+import exceptions
 
 class Action: 
 
@@ -20,10 +22,6 @@ class Action:
         This method must be overridden by Action subclasses.
         """
         raise NotImplementedError()
-
-class EscapeAction(Action):
-    def perform(self) -> None:
-        raise SystemExit()
 
 class ActionWithDirection(Action):
     def __init__(self, entity, dx: int, dy: int):
@@ -53,7 +51,7 @@ class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
         target = self.target_actor
         if not target:
-            return  # No entity to attack.
+            raise exceptions.Impossible("Nothing to attack.")
 
         damage = self.entity.fighter.power - target.fighter.defense
 
@@ -83,14 +81,63 @@ class BumpAction(ActionWithDirection):
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        if not self.engine.game_map.is_in_bounds(self.dest_xy):
-            return  # Destination is out of bounds.
+        if not self.engine.game_map.is_in_bounds(self.dest_xy):            
+            # Destination is out of bounds.
+            raise exceptions.Impossible("That way is blocked.")
         if not self.engine.game_map.tiles["walkable"][self.dest_xy.x, self.dest_xy.y]:
-            return  # Destination is blocked by a tile.
+            # Destination is blocked by a tile.
+            raise exceptions.Impossible("That way is blocked.")
         if self.engine.game_map.get_blocking_entity_at_location(self.dest_xy):
-            return  # Destination is blocked by an entity.
-
+            # Destination is blocked by an entity.
+            raise exceptions.Impossible("That way is blocked.")
+            
         self.entity.move(self.dx, self.dy)
+
+class ItemAction(Action):
+    def __init__(
+        self, entity, item, target_xy: Optional[Tuple[int, int]] = None
+    ):
+        super().__init__(entity)
+        self.item = item
+        if not target_xy:
+            target_xy = entity.location.x, entity.location.y
+        self.target_xy = target_xy
+
+    @property
+    def target_actor(self):
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.target_xy)
+
+    def perform(self) -> None:
+        """Invoke the items ability, this action will be given to provide context."""
+        self.item.consumable.activate(self)
+        
+class PickupAction(Action):
+    """Pickup an item and add it to the inventory, if there is room for it."""
+
+    def __init__(self, entity):
+        super().__init__(entity)
+
+    def perform(self) -> None:
+        inventory = self.entity.inventory
+
+        for item in self.engine.game_map.items:
+            if self.entity.location == item.location:
+                if len(inventory.items) >= inventory.capacity:
+                    raise exceptions.Impossible("Your inventory is full.")
+
+                self.engine.game_map.entities.remove(item)
+                item.parent = self.entity.inventory
+                inventory.items.append(item)
+
+                self.engine.message_log.add_message(f"You picked up the {item.name}!")
+                return
+
+        raise exceptions.Impossible("There is nothing here to pick up.")
+
+class DropItem(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.drop(self.item)
 
 class WaitAction(Action):
     def perform(self) -> None:
