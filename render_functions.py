@@ -60,7 +60,7 @@ def render_bar(console: libtcod.Console, current_value: int, maximum_value: int,
     )
 
 def get_names_at_location(x: int, y: int, game_map) -> str:
-    if not game_map.is_in_bounds(Coords(x, y)) or not game_map.visible[x, y]:
+    if not game_map.is_in_bounds(Coords(x, y)) or not game_map.visible_array[x, y]:
         return ""
 
     names = ", ".join(

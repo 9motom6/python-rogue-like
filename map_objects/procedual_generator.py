@@ -112,19 +112,39 @@ def place_entities(
     number_of_items = random.randint(0, maximum_items)
 
     for _ in range(number_of_monsters):
-        monster_location = Coords(
+        place_monster(room, dungeon)
+
+    for _ in range(number_of_items):
+        place_item(room, dungeon, _)
+
+def place_monster(room, dungeon):
+    monster_location = Coords(
             random.randint(room.top_left.x + 1, room.bottom_right.x - 1),
             random.randint(room.top_left.y + 1, room.bottom_right.y - 1))
 
-        if not any(entity.location == monster_location for entity in dungeon.entities):
-            if random.random() < 0.8:
-                entity_factories.orc.spawn(dungeon, monster_location)
-            else:
-                entity_factories.troll.spawn(dungeon, monster_location)
+    if not any(entity.location == monster_location for entity in dungeon.entities):
+        if random.random() < 0.8:
+            entity_factories.orc.spawn(dungeon, monster_location)
+        else:
+            entity_factories.troll.spawn(dungeon, monster_location)
 
-    for _ in range(number_of_items): #  TODO
-        item_location = Coords(random.randint(room.top_left.x + 1, room.bottom_right.x - 1), 
+def place_item(room, dungeon, _):
+    item_location = Coords(random.randint(room.top_left.x + 1, room.bottom_right.x - 1), 
         random.randint(room.top_left.y +_ + 1, room.bottom_right.y - 1))
 
-        if not any(entity.location == item_location for entity in dungeon.entities):
-            entity_factories.health_potion.spawn(dungeon, item_location)
+    if not any(entity.location == item_location for entity in dungeon.entities):
+        item_chance = random.random()
+
+        item = None
+
+        if item_chance < 0.1:
+            item = entity_factories.health_potion
+        elif item_chance < 0.4:
+            item = entity_factories.confusion_scroll
+        elif item_chance < 0.8:
+            item = entity_factories.fireball_scroll
+        else:
+            item = entity_factories.lightning_scroll
+
+        if item is not None:
+            item.spawn(dungeon, item_location)

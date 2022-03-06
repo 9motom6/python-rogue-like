@@ -1,5 +1,5 @@
 from typing import Tuple
-
+import math
 
 class Coords:
     def __init__(self, x, y) -> None:
@@ -19,3 +19,9 @@ class Coords:
         dy = target.y - self.y
 
         return max(abs(dx), abs(dy))
+
+    def distance(self, other):
+        """
+        Return the distance between the current entity and the given (x, y) coordinate.
+        """
+        return math.sqrt((other.x - self.x) ** 2 + (self.y - self.y) ** 2)

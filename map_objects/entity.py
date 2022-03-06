@@ -1,4 +1,5 @@
 import copy
+import math
 from typing import Optional, Tuple, Type, TypeVar, Union
 from components.ai import BaseAI
 from components.fighter import Fighter
@@ -16,7 +17,7 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    parent: Union[GameMap, "Inventory"]
+    parent: Union[GameMap, Inventory]
 
     def __init__(
         self,
@@ -66,7 +67,7 @@ class Entity:
                     self.gamemap.entities.remove(self)
             self.parent = gamemap
             gamemap.entities.add(self)
-
+    
 
 class Actor(Entity):
     def __init__(self,
